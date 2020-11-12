@@ -1,0 +1,33 @@
+function [hist] =  CallNormalizedHSVHist (im, hBinNum, sBinNum, vBinNum)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+    hist = zeros(1,hBinNum * sBinNum * vBinNum);
+    hsv = rgb2hsv(im);
+    cH = hsv(:,:,1); %% separate into channels
+    cS = hsv(:,:,2);
+    cV = hsv(:,:,3);
+    [w,l] =size(cH);
+    [histH, locH] = imhist(cH,4);
+    [histS, locS] = imhist(cS,4);
+    [histV,locV ] = imhist(cV,4);
+    val = 0;
+    for h = (0:3) % h layer bins
+        hi = ( locH(h+1)<cS & cH<=locH(h+2)); % get all pixels that belong in bin h
+        hx = h + (h*15); % determine index
+        for s = (0:3)
+            si = (locS(s+1)< cS & cS <= locS(s+2));% get all pixels that belong in bin s
+            sx = s + (s*3);
+            for v = (0:3)
+                vi = (locV(v+1)<cV & cV<=locV(v+2));% get all pixels that belong in bin v
+                n = hx + sx + v + 1; % get index
+                total = sum((hi & si & vi), 'all'); %% count only where conditions are true for all layers
+                val1 = (total/(w*l*3));
+                hist(n) = val1;
+                val = val + hist(n);
+            end 
+        end
+    end
+    val
+    
+end
+
